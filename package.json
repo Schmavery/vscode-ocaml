@@ -1,0 +1,55 @@
+{
+    "name": "ocaml",
+    "displayName": "vscode-ocaml",
+    "description": "OCaml support for vscode",
+    "version": "0.0.1",
+    "publisher": "Schmavery",
+    "engines": {
+        "vscode": "^1.0.0"
+    },
+    "categories": [
+        "Languages"
+    ],
+    "main": "./extension",
+    "activationEvents": [
+        "onLanguage:ocaml"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "ocaml",
+            "aliases": ["OCaml", "ocaml"],
+            "extensions": [".ml",".mli"],
+            "configuration": "./ocaml.configuration.json"
+        }],
+        "grammars": [{
+            "language": "ocaml",
+            "scopeName": "source.ocaml",
+            "path": "./syntaxes/ocaml.tmLanguage"
+        }],
+        "commands": [{
+            "command": "extension.format",
+            "title": "Format Ocaml Code"
+        }],
+        "configuration": {
+            "type": "object",
+            "title": "Ocaml configuration",
+            "properties": {
+                "ocaml.indentOnSave": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Run ocp-indent on save."
+                },
+                "ocaml.formatToolPath": {
+                    "type": "string",
+                    "default": "C:\\OCaml64\\home\\averym\\.opam\\4.03.0+mingw64c\\bin\\ocp-indent",
+                    "description": "Path for code format tool."
+                },
+                "ocaml.merlinPath": {
+                    "type": "string",
+                    "default": "C:\\OCaml64\\home\\averym\\.opam\\4.03.0+mingw64c\\bin\\ocamlmerlin",
+                    "description": "Path for merlin."
+                }
+            }
+        }
+    }
+}
