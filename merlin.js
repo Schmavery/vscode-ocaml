@@ -1,13 +1,14 @@
 var cp = require('child_process');
 var path = require('path');
+var rl = require('readline');
 
 module.exports = (merlinPath) => {
     var merlin = null
     
+    let kill = () => {if (merlin != null) merlin.kill()}
+    
     let restartMerlinProcess = () => {
-        if (merlin != null) {
-            merlin.kill();
-        }
+        kill();
         merlin = cp.spawn(merlinPath, []);
         merlin.on('exit', function(code) {
         return console.log("Merlin exited with code " + code);
@@ -16,12 +17,14 @@ module.exports = (merlinPath) => {
         return console.log("Merlin process (" + merlinPath + ") started, pid = " + merlin.pid);
     }
     
-    let queryMerlin = query => 
-        new Promise((stdin, stdout) => ((resolve, reject) => {
-            var count, i, j, jsonQuery, len, q, reader, results;
-            
-            reader = createInterface({
-                input: stdout,
+    let queryMerlin = query => {
+        console.log("Querying merlin...")
+        return new Promise((stdin, stdout) => ((resolve, reject) => {
+            console.log("In the promise", stdout, "--", merlin.stdout);
+            var count, i, j, jsonQuery, len, q, results;
+
+            var reader = rl.createInterface({
+                input: merlin.stdout,
                 terminal: false
             });
             
@@ -52,15 +55,16 @@ module.exports = (merlinPath) => {
                     q = query[i];
                     jsonQuery = JSON.stringify(q);
                     console.log(jsonQuery.substring(0, 300));
-                    results.push(stdin.write(jsonQuery));
+                    results.push(merlin.stdin.write(jsonQuery));
                 }
                 return results;
             } else {
                 jsonQuery = JSON.stringify(query);
                 console.log(jsonQuery.substring(0, 300));
-                return stdin.write(jsonQuery);
+                return merlin.stdin.write(jsonQuery);
             }
         })(merlin.stdin, merlin.stdout));
+    }
     
     let mkQuery = (path, q) => ({
         context: ["auto", path],
@@ -72,21 +76,30 @@ module.exports = (merlinPath) => {
     let rxPos = p => [p.line - 1, p.col];
     
     let syncFile = path => 
-      [mkQuery(path, ["tell", "start", "at", txPos(0, 0)]), mkQuery(path, ["tell", "file-eof", path])];
+      [mkQuery(path, ["tell", "start", "at", txtPos(0, 0)]), mkQuery(path, ["tell", "file-eof", path])];
       
     let syncBuffer = (path, text) =>
-        [mkQuery(path, ["tell", "start", "at", txPos(0, 0)]), mkQuery(path, ["tell", "source-eof", text])];
+      [mkQuery(path, ["tell", "start", "at", txtPos(0, 0)]), mkQuery(path, ["tell", "source-eof", text])];
     
-    // TODO: update this to fit vscode
-    let syncAll = (documents, root) =>
-        queryMerlin(documents.map(d => {
-            var p = path.join(root, doc.fileName);
-            return doc.isDirty ? syncBuffer(p, doc.getText()) : syncFile(p);
-        }))
+    let syncAll = documents => {
+        console.log("syncing");
+        try {
+        var d = documents
+            .filter(doc => doc.fileName.indexOf(path.sep) >= 0)
+            .map(doc => {
+            //var p = path.join(root, doc.fileName);
+            return doc.isDirty ? 
+                syncBuffer(doc.fileName, doc.getText()) : 
+                syncFile(doc.fileName);
+        });
+        console.log("synced", d);
+        return queryMerlin(d);
+        } catch (e) {console.log(e)}
+    }
     
-    let getTypeAt = (filename, pos, documents, root) =>
-        syncAll(documents, root).then(() =>
-            queryMerlin(mkQuery(path.join(root, filename), 
+    let getTypeAt = (filename, pos, documents) =>
+        syncAll(documents).then(() =>
+            queryMerlin(mkQuery(path.join(filename), 
                 ["type", "enclosing", "at", txPos(pos.line, pos.character)]))
             .then((resp) => {
                 var jsonResp = JSON.stringify(resp);
@@ -96,9 +109,8 @@ module.exports = (merlinPath) => {
     
     return {
         restartMerlinProcess,
-        syncFile,
-        syncBuffer,
         syncAll,
-        getTypeAt
+        getTypeAt,
+        kill
     };
 }

@@ -16,13 +16,16 @@ function activate(context) {
         {provideHover: (document, position, token) => {
             //return new vscode.Hover([{language: 'ocaml', value: 'let x = 2'}]);
             console.log("before")
-            var res = merlin.getTypeAt(
-                    document.fileName, 
-                    position, 
-                    vscode.workspace.testDocuments, 
-                    vscode.workspace.rootPath);
-            console.log("STUFFF>>", res, typeof res);        
-            return new vscode.Hover([{language: 'ocaml', value: 'let x = 2'}]);
+            try{
+                return merlin.syncAll(vscode.workspace.textDocuments);
+            } catch (e) {console.log(e)}
+            // return merlin.getTypeAt(
+            //     document.fileName, 
+            //     position,
+            //     vscode.workspace.textDocuments).then(v => {
+            //         console.log("STUFFF>>", res, typeof res);        
+            //         return new vscode.Hover([{language: 'ocaml', value: 'let x = 2'}]);
+            //     });
         }}
     );
     
