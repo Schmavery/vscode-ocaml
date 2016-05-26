@@ -1,13 +1,11 @@
-# README
-## This is the README for your extension "ocaml"
-You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
+# vscode-ocaml
 
-* Split the editor (`Cmd+\` on OSX or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on OSX or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (OSX) to see a list of Markdown snippets
+OCaml plugin for [Visual Studio Code](https://code.visualstudio.com/).  This provides syntax highlighting thanks to [ocaml.tmbundle](https://github.com/textmate/ocaml.tmbundle) as well as a couple of other features.  This is still very much a work in progress.
 
-### For more information
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+###Features:
+- Syntax highlighting
+- Auto-reindenting with the help of [ocp-indent](https://github.com/OCamlPro/ocp-indent)
 
-**Enjoy!**
+###In Progress:
+- Integration with [merlin](https://github.com/the-lambda-church/merlin) -- type-hinting, error reporting, linting etc
+- Clean everything up
