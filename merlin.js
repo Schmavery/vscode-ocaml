@@ -19,17 +19,16 @@ module.exports = (merlinPath) => {
     
     let queryMerlin = query => {
         console.log("Querying merlin...")
-        return new Promise((stdin, stdout) => ((resolve, reject) => {
-            console.log("In the promise", stdout, "--", merlin.stdout);
-            var count, i, j, jsonQuery, len, q, results;
+        return new Promise((resolve, reject) => {
+            var i, j, jsonQuery, len, q, results;
 
             var reader = rl.createInterface({
                 input: merlin.stdout,
                 terminal: false
             });
             
-            count = 1;
-            if (Array.isArray(query)) {
+            var count = 1;
+            if (Array.isArray(query[0])) {
                 count = query.length;
             }
             
@@ -45,11 +44,12 @@ module.exports = (merlinPath) => {
                 count -= 1;
                 if (count === 0) {
                     reader.close();
+                    console.log("resolving...");
                     return resolve(payload);
                 }
             });
             
-            if (Array.isArray(query)) {
+            if (Array.isArray(query[0])) {
                 results = [];
                 for (i = j = 0, len = query.length; j < len; i = ++j) {
                     q = query[i];
@@ -60,10 +60,11 @@ module.exports = (merlinPath) => {
                 return results;
             } else {
                 jsonQuery = JSON.stringify(query);
-                console.log(jsonQuery.substring(0, 300));
+                // console.log(jsonQuery.substring(0, 300));
+                console.log(jsonQuery, query);
                 return merlin.stdin.write(jsonQuery);
             }
-        })(merlin.stdin, merlin.stdout));
+        });
     }
     
     let mkQuery = (path, q) => ({
@@ -84,28 +85,36 @@ module.exports = (merlinPath) => {
     let syncAll = documents => {
         console.log("syncing");
         try {
+        // var d = documents
+        //     .filter(doc => doc.fileName.indexOf(path.sep) >= 0)
+        //     .map(doc => {
+        //     //var p = path.join(root, doc.fileName);
+        //     return doc.isDirty ? 
+        //         syncBuffer(doc.fileName, doc.getText()) : 
+        //         syncFile(doc.fileName);
+        // });
         var d = documents
-            .filter(doc => doc.fileName.indexOf(path.sep) >= 0)
-            .map(doc => {
-            //var p = path.join(root, doc.fileName);
-            return doc.isDirty ? 
-                syncBuffer(doc.fileName, doc.getText()) : 
-                syncFile(doc.fileName);
-        });
+             .filter(doc => doc.fileName.indexOf(path.sep) >= 0 && doc.languageId === 'ocaml')
+             .map(doc => ["tell", "start", "end", doc.getText()])
         console.log("synced", d);
         return queryMerlin(d);
         } catch (e) {console.log(e)}
     }
     
     let getTypeAt = (filename, pos, documents) =>
-        syncAll(documents).then(() =>
-            queryMerlin(mkQuery(path.join(filename), 
-                ["type", "enclosing", "at", txPos(pos.line, pos.character)]))
+        syncAll(documents).then(() => {
+            console.log("Resolved.")
+            try {
+                // return queryMerlin(mkQuery(filename, 
+                //     ["type", "enclosing", "at", txtPos(pos.line, pos.character)]))
+                return queryMerlin(["type", "enclosing", "at", txtPos(pos.line, pos.character)])
             .then((resp) => {
-                var jsonResp = JSON.stringify(resp);
-                console.log("Resp: " + jsonResp);
+                console.log("Resp: " + JSON.stringify(resp));
                 return resp;
-            }));
+            });
+                // return queryMerlin(["version"]);
+            } catch (e) {console.log(e)}
+        });
     
     return {
         restartMerlinProcess,

@@ -17,21 +17,19 @@ function activate(context) {
             //return new vscode.Hover([{language: 'ocaml', value: 'let x = 2'}]);
             console.log("before")
             try{
-                return merlin.syncAll(vscode.workspace.textDocuments);
+            return merlin.getTypeAt(
+                document.fileName, 
+                position,
+                vscode.workspace.textDocuments).then(v => {
+                    console.log("STUFFF>>", res, typeof res);        
+                    return new vscode.Hover([{language: 'ocaml', value: 'let x = 2'}]);
+                });
             } catch (e) {console.log(e)}
-            // return merlin.getTypeAt(
-            //     document.fileName, 
-            //     position,
-            //     vscode.workspace.textDocuments).then(v => {
-            //         console.log("STUFFF>>", res, typeof res);        
-            //         return new vscode.Hover([{language: 'ocaml', value: 'let x = 2'}]);
-            //     });
         }}
     );
     
     
     vscode.workspace.onDidSaveTextDocument((doc) => {
-        console.log("stuffff", doc, vscode.workspace.getConfiguration('ocaml')['indentOnSave']);
         var b = (doc.languageId === 'ocaml' && vscode.workspace.getConfiguration('ocaml')['indentOnSave']);
         if (b) reformat();
     });
@@ -39,9 +37,6 @@ function activate(context) {
     var disposable = vscode.commands.registerCommand('extension.format', function () {
         reformat();
     });
-        
-    //console.log(context);
-    //console.log(vscode.workspace.getConfiguration('ocaml'));
 }
 
 function deactivate(){

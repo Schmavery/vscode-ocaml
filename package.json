@@ -46,6 +46,7 @@
                 "ocaml.formatToolPath": {
                     "type": "string",
                     "default": "C:\\OCaml64\\home\\averym\\.opam\\4.03.0+mingw64c\\bin\\ocp-indent",
+
                     "description": "Path for code format tool."
                 },
                 "ocaml.merlinPath": {
