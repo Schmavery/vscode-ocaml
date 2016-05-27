@@ -1,0 +1,50 @@
+{
+	"begin": {
+		"prefix": "begin",
+		"body": "begin\r\n\t$0\r\nend",
+		"description": "begin block",
+		"scope": "source.ocaml"
+	},
+	"cr": {
+		"prefix": "cr",
+		"body": "(* CR `whoami`: $1 *)$0",
+		"description": "CR",
+		"scope": "source"
+	},
+	"doc": {
+		"prefix": "doc",
+		"body": "(** [$1] $0 *)",
+		"description": "Document",
+		"scope": "source.ocaml"
+	},
+	"~f": {
+		"prefix": "~f",
+		"body": "~f:(fun ${1:()} -> ${2:body})",
+		"description": "function label",
+		"scope": "source.ocaml"
+	},
+	"sig": {
+		"prefix": "sig",
+		"body": "module ${1:Name} : sig\r\n\t$0\r\nend",
+		"description": "module signature",
+		"scope": "source.ocaml"
+	},
+	"mtype": {
+		"prefix": "mtype",
+		"body": "module type ${1:Name} = sig\r\n\t$0\r\nend",
+		"description": "module type",
+		"scope": "source.ocaml"
+	},
+	"try": {
+		"prefix": "try",
+		"body": "try\r\n\t$0\r\nwith\r\n| _ -> failwith \"Unknown\"",
+		"description": "try with",
+		"scope": "source.ocaml"
+	},
+	"thread": {
+		"prefix": "thread",
+		"body": "ignore (Thread.create (fun () -> \r\n    $0\r\n  ) ())",
+		"description": "thread create",
+		"scope": "source.ocaml"
+	}
+}

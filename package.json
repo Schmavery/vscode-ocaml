@@ -26,6 +26,10 @@
             "scopeName": "source.ocaml",
             "path": "./syntaxes/ocaml.tmLanguage"
         }],
+        "snippets": [{
+            "language": "ocaml",
+            "path": "./snippets/snippets.json"
+        }],
         "commands": [{
             "command": "extension.format",
             "title": "Format Ocaml Code"
